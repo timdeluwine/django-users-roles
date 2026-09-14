@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}Вход в систему{% endblock %}
+
+{% block content %}
+<h2>Вход в систему</h2>
+
+{% if form.errors %}
+    <div class="error">Неверное имя пользователя или пароль. Попробуйте снова.</div>
+{% endif %}
+
+<form method="post">
+    {% csrf_token %}
+    <div>
+        <label>Имя пользователя:</label>
+        {{ form.username }}
+    </div>
+    <div>
+        <label>Пароль:</label>
+        {{ form.password }}
+    </div>
+    <br>
+    <button type="submit" class="btn-primary">Войти</button>
+</form>
+{% endblock %}

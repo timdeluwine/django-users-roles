@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}Личный кабинет{% endblock %}
+
+{% block content %}
+<h2>Личный кабинет</h2>
+
+<p>Вы вошли как: <strong>{{ user.username }}</strong></p>
+<p>Email: <strong>{{ user.email|default:"не указан" }}</strong></p>
+
+<p>Ваши роли (группы):</p>
+<ul>
+    {% for group in user.groups.all %}
+        <li><strong>{{ group.name }}</strong></li>
+    {% empty %}
+        <li><em>Роли еще не назначены</em></li>
+    {% endfor %}
+</ul>
+
+{% if user.is_superuser %}
+    <p style="color: #2e7d32;">Статус: <strong>Суперпользователь (полный доступ)</strong></p>
+{% endif %}
+{% endblock %}

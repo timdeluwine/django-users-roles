@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}Панель управления пользователями{% endblock %}
+
+{% block content %}
+<h2>Панель управления (/manage/)</h2>
+<p>Управление учетными записями и распределение ролей в системе.</p>
+
+<table border="1" cellpadding="8" cellspacing="0" style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+    <tr style="background: #e9ecef; text-align: left;">
+        <th>Логин (Username)</th>
+        <th>Email</th>
+        <th>Активен?</th>
+        <th>Текущие роли</th>
+        <th>Действие с ролью</th>
+    </tr>
+    {% for u in users_list %}
+    <tr>
+        <td><strong>{{ u.username }}</strong> {% if u.is_superuser %}<span style="color: #2e7d32;">(Суперюзер)</span>{% endif %}</td>
+        <td>{{ u.email|default:"—" }}</td>
+        <td>
+            {% if u.is_active %}
+                <span style="color: green;">✓ Да</span>
+            {% else %}
+                <span style="color: red;">✗ Заблокирован</span>
+            {% endif %}
+        </td>
+        <td>
+            {% for g in u.groups.all %}
+                <span style="background: #e2e3e5; padding: 2px 6px; border-radius: 4px; font-size: 12px;">{{ g.name }}</span>
+            {% empty %}
+                <span style="color: #888;">Нет ролей</span>
+            {% endfor %}
+        </td>
+        <td>
+            <form action="{% url 'manage_user_role' u.id %}" method="post" style="display: flex; gap: 5px;">
+                {% csrf_token %}
+                <select name="role_name" style="width: auto; margin: 0; padding: 4px;">
+                    {% for role in all_roles %}
+                        <option value="{{ role.name }}">{{ role.name }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" name="action" value="assign" style="background: #28a745; color: white; border: none; padding: 4px 8px; border-radius: 3px; cursor: pointer;">+ Назначить</button>
+                <button type="submit" name="action" value="remove" style="background: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 3px; cursor: pointer;">- Снять</button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Users & Roles{% endblock %}</title>
+    <style>
+        body { font-family: sans-serif; margin: 30px; background: #f4f6f8; }
+        .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .nav { margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #ddd; }
+        .nav a, .nav button { margin-right: 15px; text-decoration: none; color: #0066cc; }
+        .btn-link { background: none; border: none; cursor: pointer; color: #0066cc; font-size: 14px; padding: 0; }
+        .error { color: #d9534f; background: #fdf7f7; border: 1px solid #d9534f; padding: 10px; border-radius: 4px; margin-bottom: 15px; }
+        input[type="text"], input[type="password"], select { width: 100%; padding: 8px; margin: 8px 0; box-sizing: border-box; }
+        button.btn-primary { background: #0066cc; color: #fff; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav">
+            {% if user.is_authenticated %}
+                <span>Пользователь: <strong>{{ user.username }}</strong></span> | 
+                <a href="{% url 'home' %}">Главная</a>
+                {% if user.is_staff or 'admin' in user.groups.values_list|stringformat:"s" %}
+                    | <a href="/manage/"><strong>Панель управления (/manage/)</strong></a>
+                {% endif %}
+                | <form action="{% url 'logout' %}" method="post" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-link">Выйти</button>
+                  </form>
+            {% else %}
+                <a href="{% url 'login' %}">Войти</a>
+            {% endif %}
+        </div>
+
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>
