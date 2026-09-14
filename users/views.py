@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import Group, User
 from django.core.exceptions import PermissionDenied
@@ -43,11 +44,18 @@ class ManageUserRoleView(AdminRequiredMixin, View):
         role_name = request.POST.get("role_name")
         action = request.POST.get("action")
 
+        # ЗАЩИТА: Нельзя снять роль admin с самого себя
+        if request.user == target_user and role_name == "admin" and action == "remove":
+            messages.error(request, "Нельзя снять роль администратора с самого себя!")
+            return redirect("manage_users")
+
         if role_name:
             role = get_object_or_404(Group, name=role_name)
             if action == "assign":
                 target_user.groups.add(role)
+                messages.success(request, f"Роль «{role_name}» назначена пользователю {target_user.username}.")
             elif action == "remove":
                 target_user.groups.remove(role)
+                messages.success(request, f"Роль «{role_name}» снята с пользователя {target_user.username}.")
 
         return redirect("manage_users")
