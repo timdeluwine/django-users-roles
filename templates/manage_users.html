@@ -20,7 +20,8 @@
 
     <table border="1" cellpadding="8" cellspacing="0" style="width: 100%; border-collapse: collapse; margin-top: 15px;">
         <tr style="background: #e9ecef; text-align: left;">
-            <th>Логин (Username)</th>
+            <th>Логин</th>
+            <th>Имя</th>
             <th>Email</th>
             <th>Активен?</th>
             <th>Текущие роли</th>
@@ -34,6 +35,7 @@
                     <span style="color: #2e7d32;">(Суперюзер)</span>
                 {% endif %}
             </td>
+            <td>{{ u.get_full_name|default:"—" }}</td>
             <td>{{ u.email|default:"—" }}</td>
             <td>
                 {% if u.is_active %}
@@ -64,7 +66,7 @@
         </tr>
         {% empty %}
         <tr>
-            <td colspan="5" style="text-align: center;">Пользователи не найдены.</td>
+            <td colspan="6" style="text-align: center;">Пользователи не найдены.</td>
         </tr>
         {% endfor %}
     </table>

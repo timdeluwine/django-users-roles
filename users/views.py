@@ -53,9 +53,15 @@ class ManageUserRoleView(AdminRequiredMixin, View):
             role = get_object_or_404(Group, name=role_name)
             if action == "assign":
                 target_user.groups.add(role)
-                messages.success(request, f"Роль «{role_name}» назначена пользователю {target_user.username}.")
+                messages.success(
+                    request,
+                    f"Роль «{role_name}» назначена пользователю {target_user.username}.",
+                )
             elif action == "remove":
                 target_user.groups.remove(role)
-                messages.success(request, f"Роль «{role_name}» снята с пользователя {target_user.username}.")
+                messages.success(
+                    request,
+                    f"Роль «{role_name}» снята с пользователя {target_user.username}.",
+                )
 
         return redirect("manage_users")
