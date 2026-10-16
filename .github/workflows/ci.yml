@@ -7,9 +7,12 @@ on:
     branches: [ main, master ]
 
 env:
-  SECRET_KEY: "django-insecure-ci-test-secret-key-1234567890"
-  PYTHONPATH: "."
-  DJANGO_SETTINGS_MODULE: "config.settings"
+  SECRET_KEY: 'django-insecure-ci-test-key-for-automated-runs-only-12345'
+  DEBUG: '1'
+  AWS_ACCESS_KEY_ID: 'testing'
+  AWS_SECRET_ACCESS_KEY: 'testing'
+  AWS_STORAGE_BUCKET_NAME: 'test-bucket'
+  AWS_S3_REGION_NAME: 'eu-central-1'
 
 jobs:
   lint-and-backend:
@@ -19,6 +22,17 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+
+      - name: Create Clean .env for CI
+        run: |
+          cat << 'EOF' > .env
+          SECRET_KEY=django-insecure-ci-test-key-for-automated-runs-only-12345
+          DEBUG=1
+          AWS_ACCESS_KEY_ID=testing
+          AWS_SECRET_ACCESS_KEY=testing
+          AWS_STORAGE_BUCKET_NAME=test-bucket
+          AWS_S3_REGION_NAME=eu-central-1
+          EOF
 
       - name: Set up Python 3.12
         uses: actions/setup-python@v5
@@ -31,11 +45,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Create .env for testing
-        run: |
-          if [ -f .env.example ]; then cp .env.example .env; else touch .env; fi
-          echo "SECRET_KEY=django-insecure-ci-test-secret-key-1234567890" >> .env
-
       - name: Run Ruff Linter
         run: ruff check .
 
@@ -43,6 +52,9 @@ jobs:
         run: black --check .
 
       - name: Run Pytest with Coverage Gate
+        env:
+          PYTHONPATH: .
+          DJANGO_SETTINGS_MODULE: config.settings
         run: python -m pytest
 
   e2e-playwright:
@@ -54,6 +66,17 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Create Clean .env for CI
+        run: |
+          cat << 'EOF' > .env
+          SECRET_KEY=django-insecure-ci-test-key-for-automated-runs-only-12345
+          DEBUG=1
+          AWS_ACCESS_KEY_ID=testing
+          AWS_SECRET_ACCESS_KEY=testing
+          AWS_STORAGE_BUCKET_NAME=test-bucket
+          AWS_S3_REGION_NAME=eu-central-1
+          EOF
+
       - name: Set up Python 3.12
         uses: actions/setup-python@v5
         with:
@@ -64,11 +87,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-
-      - name: Create .env for testing
-        run: |
-          if [ -f .env.example ]; then cp .env.example .env; else touch .env; fi
-          echo "SECRET_KEY=django-insecure-ci-test-secret-key-1234567890" >> .env
 
       - name: Set up Node.js 20
         uses: actions/setup-node@v4
@@ -94,7 +112,13 @@ jobs:
       - name: Start Django & Run E2E Tests
         run: |
           python manage.py runserver 127.0.0.1:8000 &
-          until curl -s http://127.0.0.1:8000/login/ > /dev/null; do sleep 1; done
+          for i in {1..30}; do
+            if curl -s http://127.0.0.1:8000/login/ > /dev/null; then
+              echo "Django is ready!"
+              break
+            fi
+            sleep 1
+          done
           cd e2e
           npx playwright test
 
