@@ -1,34 +1,58 @@
-# Python & Django
+# Python & Bytecode
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
+
+# Virtual Environment
 venv/
-ENV/
-env/
 .venv/
+env/
+ENV/
+
+# Environment variables & secrets
+.env
+.env.local
+*.env
+
+# SQLite Database & local storage
+*.sqlite3
 db.sqlite3
-db.sqlite3-journal
 media/
+media_test/
 staticfiles/
 
-# Environment variables
-.env
-
-# Testing & Linters
-.ruff_cache/
-.pytest_cache/
+# Pytest & Coverage
 .coverage
+.coverage.*
 htmlcov/
+.pytest_cache/
+coverage.xml
+*.cover
 
-# Playwright E2E
+# Ruff & Linters cache
+.ruff_cache/
+.mypy_cache/
+
+# Node.js & npm
+node_modules/
 e2e/node_modules/
-e2e/playwright-report/
-e2e/test-results/
-playwright-report/
-test-results/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# IDE
+# Playwright artifacts & reports
+test-results/
+playwright-report/
+e2e/test-results/
+e2e/playwright-report/
+e2e/.cache/
+
+# IDE & OS files
 .vscode/
 .idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
