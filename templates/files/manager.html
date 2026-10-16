@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+
+{% block title %}Файловый менеджер{% endblock %}
+
+{% block content %}
+<h2>Файловый менеджер</h2>
+
+{% if messages %}
+    <div style="margin-top: 15px; margin-bottom: 15px;">
+        {% for message in messages %}
+            <div data-testid="flash-message" style="padding: 10px 15px; border-radius: 4px; margin-bottom: 8px; font-weight: 500;
+                {% if message.tags == 'error' %}background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;
+                {% else %}background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb;{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<!-- Хлебные крошки -->
+<nav aria-label="Хлебные крошки" data-testid="breadcrumbs" style="background: #e9ecef; padding: 10px 15px; border-radius: 4px; margin-bottom: 20px;">
+    {% for crumb in breadcrumbs %}
+        {% if forloop.last %}
+            <strong>{{ crumb.name }}</strong>
+        {% else %}
+            <a href="{% url 'file_manager' %}{% if crumb.path %}?path={{ crumb.path }}{% endif %}" style="text-decoration: none; color: #0066cc;">{{ crumb.name }}</a> &gt;
+        {% endif %}
+    {% endfor %}
+</nav>
+
+<!-- Панель действий: Создание папки и Мультизагрузка -->
+<div style="display: flex; gap: 20px; margin-bottom: 25px; flex-wrap: wrap;">
+    <!-- Создать папку -->
+    <div style="background: #fff; padding: 15px; border: 1px solid #ddd; border-radius: 4px; flex: 1; min-width: 280px;">
+        <h4 style="margin-top: 0; margin-bottom: 10px;">Создать папку</h4>
+        <form action="{% url 'file_mkdir' %}" method="post" data-testid="create-folder-form">
+            {% csrf_token %}
+            <input type="hidden" name="parent_path" value="{{ current_path }}">
+            <input type="text" name="folder_name" placeholder="Имя папки" required style="padding: 6px; width: 60%;" aria-label="Имя новой папки" data-testid="folder-name-input">
+            <button type="submit" style="padding: 6px 12px; cursor: pointer;" data-testid="create-folder-btn">Создать</button>
+        </form>
+    </div>
+
+    <!-- Загрузка файлов -->
+    <div style="background: #fff; padding: 15px; border: 1px solid #ddd; border-radius: 4px; flex: 1; min-width: 280px;">
+        <h4 style="margin-top: 0; margin-bottom: 10px;">Загрузить файлы</h4>
+        <form action="{% url 'file_upload' %}" method="post" enctype="multipart/form-data" data-testid="upload-file-form">
+            {% csrf_token %}
+            <input type="hidden" name="parent_path" value="{{ current_path }}">
+            <input type="file" name="files" multiple required aria-label="Выбрать файлы для загрузки" data-testid="file-upload-input">
+            <button type="submit" style="padding: 6px 12px; cursor: pointer; margin-top: 6px;" data-testid="upload-file-btn">Загрузить</button>
+        </form>
+    </div>
+</div>
+
+<!-- Таблица содержимого -->
+<table border="1" cellpadding="8" cellspacing="0" style="width: 100%; border-collapse: collapse; background: #fff;" data-testid="files-table">
+    <tr style="background: #e9ecef; text-align: left;">
+        <th>Тип</th>
+        <th>Имя</th>
+        <th>Размер</th>
+        <th>Дата изменения</th>
+        <th>Действия</th>
+    </tr>
+    {% if not items %}
+        <tr>
+            <td colspan="5" style="text-align: center; color: #777; padding: 20px;" data-testid="empty-folder-message">Папка пуста</td>
+        </tr>
+    {% else %}
+        {% for item in items %}
+            <tr data-testid="item-row" data-item-name="{{ item.name }}" data-item-type="{% if item.is_dir %}folder{% else %}file{% endif %}">
+                <td>{% if item.is_dir %}📁 Папка{% else %}📄 Файл{% endif %}</td>
+                <td>
+                    {% if item.is_dir %}
+                        <a href="{% url 'file_manager' %}?path={{ item.path }}" style="font-weight: bold; text-decoration: none; color: #0066cc;" data-testid="folder-link-{{ item.name }}">{{ item.name }}</a>
+                    {% else %}
+                        <span>{{ item.name }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if item.is_dir %}—{% else %}{{ item.size|filesizeformat }}{% endif %}
+                </td>
+                <td>
+                    {% if item.modified_at %}{{ item.modified_at|date:"d.m.Y H:i" }}{% else %}—{% endif %}
+                </td>
+                <td>
+                    {% if not item.is_dir %}
+                        <a href="{% url 'file_download' %}?path={{ item.path }}" style="margin-right: 8px; text-decoration: none; color: #28a745;" data-testid="download-btn-{{ item.name }}">Скачать</a>
+                    {% endif %}
+
+                    <button type="button" onclick="openRenameModal('{{ item.path }}', '{{ item.name }}')" style="cursor: pointer; margin-right: 8px;" data-testid="rename-btn-{{ item.name }}">Переименовать</button>
+
+                    <button type="button" onclick="openDeleteModal('{{ item.path }}', '{{ item.name }}', {{ item.is_dir|yesno:'true,false' }})" style="cursor: pointer; color: #dc3545;" data-testid="delete-btn-{{ item.name }}">Удалить</button>
+                </td>
+            </tr>
+        {% endfor %}
+    {% endif %}
+</table>
+
+<!-- Модальное окно переименования -->
+<dialog id="renameModal" style="padding: 20px; border: 1px solid #ccc; border-radius: 6px;" data-testid="rename-modal">
+    <h3 style="margin-top: 0;">Переименовать</h3>
+    <form action="{% url 'file_rename' %}" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="item_path" id="renameItemPath">
+        <div style="margin-bottom: 15px;">
+            <label for="renameNewName">Новое имя:</label><br>
+            <input type="text" name="new_name" id="renameNewName" required style="padding: 6px; width: 250px; margin-top: 5px;" data-testid="rename-new-name-input">
+        </div>
+        <div style="display: flex; gap: 10px; justify-content: flex-end;">
+            <button type="button" onclick="closeRenameModal()" data-testid="rename-cancel-btn">Отмена</button>
+            <button type="submit" data-testid="rename-confirm-btn">Сохранить</button>
+        </div>
+    </form>
+</dialog>
+
+<!-- Модальное окно подтверждения удаления -->
+<dialog id="deleteModal" style="padding: 20px; border: 1px solid #ccc; border-radius: 6px;" data-testid="delete-modal">
+    <h3 style="margin-top: 0; color: #dc3545;">Подтверждение удаления</h3>
+    <p id="deleteModalText">Вы действительно хотите удалить этот элемент?</p>
+    <form action="{% url 'file_delete' %}" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="item_path" id="deleteItemPath">
+        <div style="display: flex; gap: 10px; justify-content: flex-end;">
+            <button type="button" onclick="closeDeleteModal()" data-testid="delete-cancel-btn">Отмена</button>
+            <button type="submit" style="background: #dc3545; color: #fff; border: 1px solid #dc3545; padding: 6px 12px; cursor: pointer;" data-testid="delete-confirm-btn">Удалить</button>
+        </div>
+    </form>
+</dialog>
+
+<script>
+function openRenameModal(path, currentName) {
+    document.getElementById('renameItemPath').value = path;
+    document.getElementById('renameNewName').value = currentName;
+    document.getElementById('renameModal').showModal();
+}
+function closeRenameModal() {
+    document.getElementById('renameModal').close();
+}
+
+function openDeleteModal(path, name, isDir) {
+    document.getElementById('deleteItemPath').value = path;
+    var message = isDir ? 'Вы уверены, что хотите удалить папку "' + name + '" со всем её содержимым?' : 'Вы уверены, что хотите удалить файл "' + name + '"?';
+    document.getElementById('deleteModalText').innerText = message;
+    document.getElementById('deleteModal').showModal();
+}
+function closeDeleteModal() {
+    document.getElementById('deleteModal').close();
+}
+</script>
+{% endblock %}
