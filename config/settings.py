@@ -1,14 +1,21 @@
 import os
 from pathlib import Path
 
+from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Загружаем переменные из .env
+# Загрузка переменных из .env
 load_dotenv(BASE_DIR / ".env")
 
-SECRET_KEY = os.environ.get("SECRET_KEY", "fallback-secret-key-for-dev")
+SECRET_KEY = os.environ.get("SECRET_KEY", "").strip()
+if not SECRET_KEY:
+    raise ImproperlyConfigured(
+        "Переменная окружения SECRET_KEY не задана. "
+        "Скопируйте .env.example в .env и укажите SECRET_KEY."
+    )
+
 DEBUG = os.environ.get("DEBUG", "False").lower() in ("true", "1", "t")
 
 ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
