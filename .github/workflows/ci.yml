@@ -33,7 +33,10 @@ jobs:
         run: black --check .
 
       - name: Run Pytest with Coverage Gate
-        run: pytest
+        env:
+          PYTHONPATH: .
+          DJANGO_SETTINGS_MODULE: config.settings
+        run: python -m pytest
 
   e2e-playwright:
     name: Playwright E2E Tests (Chromium)
@@ -79,7 +82,6 @@ jobs:
       - name: Start Django & Run E2E Tests
         run: |
           python manage.py runserver 127.0.0.1:8000 &
-          # Ожидаем готовности сервера перед стартом тестов
           until curl -s http://127.0.0.1:8000/login/ > /dev/null; do sleep 1; done
           cd e2e
           npx playwright test

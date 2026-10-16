@@ -1,7 +1,7 @@
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "config.settings"
-python_files = ["test_*.py", "*_test.py", "tests.py"]
-testpaths = ["tests", "users"]
+python_files = ["tests.py", "test_*.py", "*_tests.py"]
+pythonpath = ["."]
 addopts = "--cov=files --cov=users --cov-report=term-missing --cov-fail-under=80"
 
 [tool.coverage.run]
