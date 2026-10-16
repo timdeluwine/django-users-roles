@@ -1,0 +1,24 @@
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings"
+python_files = ["test_*.py", "*_test.py", "tests.py"]
+testpaths = ["tests", "users"]
+addopts = "--cov=files --cov=users --cov-report=term-missing --cov-fail-under=80"
+
+[tool.coverage.run]
+omit = [
+    "*/migrations/*",
+    "config/*",
+    "manage.py",
+    "files/apps.py",
+    "users/apps.py",
+    "*/tests.py",
+    "tests/*",
+]
+
+[tool.black]
+line-length = 88
+target-version = ["py312"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"

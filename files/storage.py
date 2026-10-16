@@ -2,7 +2,7 @@ import io
 import shutil
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import BinaryIO
 
@@ -114,7 +114,7 @@ class LocalStorage(StorageBackend):
                     path=item_rel,
                     is_dir=is_directory,
                     size=0 if is_directory else stat.st_size,
-                    modified_at=datetime.fromtimestamp(stat.st_mtime, tz=timezone.utc),
+                    modified_at=datetime.fromtimestamp(stat.st_mtime, tz=UTC),
                 )
             )
 
