@@ -1,0 +1,47 @@
+{
+  "realm": "django-realm",
+  "enabled": true,
+  "sslRequired": "none",
+  "registrationAllowed": true,
+  "clients": [
+    {
+      "clientId": "django-client",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "secret": "django-client-secret-12345",
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "fullScopeAllowed": true,
+      "defaultClientScopes": [
+        "web-origins",
+        "acr",
+        "profile",
+        "roles",
+        "email"
+      ],
+      "redirectUris": [
+        "http://localhost:8000/oidc/callback/",
+        "http://54.211.123.237:8000/oidc/callback/*",
+        "http://54.211.123.237:8000/oidc/callback/"
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "sso_user",
+      "enabled": true,
+      "email": "sso@example.com",
+      "emailVerified": true,
+      "firstName": "SSO",
+      "lastName": "User",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "sso_password123",
+          "temporary": false
+        }
+      ]
+    }
+  ]
+}

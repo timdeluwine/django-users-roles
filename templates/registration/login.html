@@ -30,4 +30,13 @@
     <br>
     <button type="submit" class="btn-primary">Войти</button>
 </form>
+
+<hr style="margin: 25px 0; border: none; border-top: 1px solid #ccc;">
+
+<div style="text-align: center;">
+    <p style="margin-bottom: 10px; color: #666;">Или используйте единую учетную запись:</p>
+    <a href="{% url 'oidc_authentication_init' %}" class="btn-primary" style="display: inline-block; padding: 8px 16px; background-color: #4b6cb7; color: white; text-decoration: none; border-radius: 4px;" data-testid="sso-login-link">
+        Войти через Keycloak SSO
+    </a>
+</div>
 {% endblock %}

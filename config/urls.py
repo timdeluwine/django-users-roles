@@ -5,6 +5,7 @@ from django.urls import include, path
 from users.views import HomeView, ManageUserRoleView, ManageUsersView
 
 urlpatterns = [
+    path("oidc/", include("mozilla_django_oidc.urls")),
     path("admin/", admin.site.urls),
     path(
         "login/",

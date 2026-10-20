@@ -101,3 +101,31 @@ class UsersAndRolesTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.admin_user.refresh_from_db()
         self.assertTrue(self.admin_user.groups.filter(name="admin").exists())
+
+
+class KeycloakOIDCTests(TestCase):
+    def test_oidc_create_and_update_user(self):
+        from users.oidc import KeycloakOIDCAuthenticationBackend
+        backend = KeycloakOIDCAuthenticationBackend()
+        claims = {
+            "sub": "12345",
+            "preferred_username": "sso_user",
+            "email": "sso@example.com",
+            "given_name": "SSO",
+            "family_name": "User",
+        }
+        payload = backend.get_userinfo("token", "id_token", claims)
+        self.assertEqual(payload["preferred_username"], "sso_user")
+
+        user = backend.create_user(claims)
+        self.assertEqual(user.username, "sso_user")
+        self.assertEqual(user.email, "sso@example.com")
+
+        updated_claims = {
+            "email": "new_sso@example.com",
+            "given_name": "Updated",
+            "family_name": "Name",
+        }
+        user = backend.update_user(user, updated_claims)
+        self.assertEqual(user.email, "new_sso@example.com")
+        self.assertEqual(user.first_name, "Updated")

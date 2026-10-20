@@ -156,3 +156,41 @@ else:
     }
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/login/"
+
+
+
+
+
+# --- Keycloak SSO Configuration ---
+import os
+
+INSTALLED_APPS += ["mozilla_django_oidc"]
+
+AUTHENTICATION_BACKENDS = (
+    "users.oidc.KeycloakOIDCAuthenticationBackend",
+    "django.contrib.auth.backends.ModelBackend",
+)
+
+OIDC_RP_CLIENT_ID = os.getenv("OIDC_RP_CLIENT_ID", "django-client")
+OIDC_RP_CLIENT_SECRET = os.getenv("OIDC_RP_CLIENT_SECRET", "django-client-secret-12345")
+
+KEYCLOAK_PUBLIC_URL = os.getenv(
+    "KEYCLOAK_PUBLIC_URL",
+    "http://54.211.123.237:8080/realms/django-realm/protocol/openid-connect",
+)
+KEYCLOAK_INTERNAL_URL = os.getenv(
+    "KEYCLOAK_INTERNAL_URL",
+    "http://keycloak:8080/realms/django-realm/protocol/openid-connect",
+)
+
+OIDC_OP_AUTHORIZATION_ENDPOINT = f"{KEYCLOAK_PUBLIC_URL}/auth"
+OIDC_OP_TOKEN_ENDPOINT = f"{KEYCLOAK_INTERNAL_URL}/token"
+OIDC_OP_USER_ENDPOINT = f"{KEYCLOAK_INTERNAL_URL}/userinfo"
+OIDC_OP_JWKS_ENDPOINT = f"{KEYCLOAK_INTERNAL_URL}/certs"
+
+OIDC_RP_SIGN_ALGO = "RS256"
+OIDC_RP_SCOPES = "openid profile email"
+OIDC_VERIFY_SSL = False
+
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"
