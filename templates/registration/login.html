@@ -2,6 +2,28 @@
 {% block title %}Вход{% endblock %}
 {% block content %}
 <h2>Вход в систему</h2>
+
+{% if form.errors %}
+    <div style="color: #dc3545; margin-bottom: 15px;">
+        {% for error in form.non_field_errors %}
+            <p>{{ error }}</p>
+        {% endfor %}
+        {% for field in form %}
+            {% for error in field.errors %}
+                <p>{{ error }}</p>
+            {% endfor %}
+        {% endfor %}
+    </div>
+{% endif %}
+
+{% if messages %}
+    <div style="color: #dc3545; margin-bottom: 15px;">
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+{% endif %}
+
 <form method="post">
     {% csrf_token %}
     <div>
