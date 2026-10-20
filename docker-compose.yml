@@ -18,6 +18,7 @@ services:
       - MAX_TOTAL_UPLOAD_SIZE=${MAX_TOTAL_UPLOAD_SIZE:-52428800}
     volumes:
       - media_data:/app/media
+      - ./db.sqlite3:/app/db.sqlite3
 
 volumes:
   media_data:

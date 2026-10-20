@@ -1,0 +1,10 @@
+.git
+.github
+.env
+*.pem
+db.sqlite3
+e2e
+playwright-report
+test-results
+__pycache__
+*.pyc

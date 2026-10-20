@@ -54,7 +54,7 @@
             <td>
                 <form action="{% url 'manage_user_role' u.id %}" method="post" style="display: flex; gap: 6px; align-items: center;">
                     {% csrf_token %}
-                    <select name="role_name" style="padding: 4px 8px; border-radius: 4px; border: 1px solid #ccc;">
+                    <label for="role-select-{{ u.id }}" style="display:none;">Роль</label><label for="role-select-{{ u.id }}" style="display:none;">Роль</label><select name="role_name" id="role-select-{{ u.id }}" aria-label="Роль пользователя" id="role-select-{{ u.id }}" aria-label="Роль пользователя" style="padding: 4px 8px; border-radius: 4px; border: 1px solid #ccc;">
                         {% for r in all_roles %}
                             <option value="{{ r.name }}">{{ r.name }}</option>
                         {% endfor %}
