@@ -129,14 +129,15 @@ jobs:
           name: playwright-report
           path: e2e/playwright-report/
           retention-days: 7
-    - name: Deploy to EC2 via SSH
-      if: success() && github.ref == 'refs/heads/main'
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: ${{ secrets.EC2_HOST }}
-        username: ${{ secrets.EC2_USER }}
-        key: ${{ secrets.EC2_SSH_KEY }}
-        script: |
-          cd /home/ubuntu/app
-          git pull origin main
-          docker compose up -d --build
+
+      - name: Deploy to EC2 via SSH
+        if: success() && github.ref == 'refs/heads/main'
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /home/ubuntu/app
+            git pull origin main
+            docker compose up -d --build
