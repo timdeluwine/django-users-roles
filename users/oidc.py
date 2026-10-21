@@ -8,7 +8,9 @@ class KeycloakOIDCAuthenticationBackend(OIDCAuthenticationBackend):
         return payload
 
     def create_user(self, claims):
-        username = claims.get("preferred_username") or claims.get("email") or claims.get("sub")
+        username = (
+            claims.get("preferred_username") or claims.get("email") or claims.get("sub")
+        )
         email = claims.get("email", "")
         user = self.UserModel.objects.create_user(username=username, email=email)
         user.first_name = claims.get("given_name", "")

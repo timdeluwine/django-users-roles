@@ -106,6 +106,7 @@ class UsersAndRolesTests(TestCase):
 class KeycloakOIDCTests(TestCase):
     def test_oidc_create_and_update_user(self):
         from users.oidc import KeycloakOIDCAuthenticationBackend
+
         backend = KeycloakOIDCAuthenticationBackend()
         claims = {
             "sub": "12345",

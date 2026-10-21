@@ -158,9 +158,6 @@ LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/login/"
 
 
-
-
-
 # --- Keycloak SSO Configuration ---
 import os
 
