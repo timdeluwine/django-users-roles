@@ -9,8 +9,8 @@ services:
       - ALLOWED_HOSTS=*
       - AWS_STORAGE_BUCKET_NAME=django-users-roles-timdeluwine-storage
       - AWS_S3_REGION_NAME=us-east-1
-      - STORAGE_BACKEND=s3
-      - USE_S3=True
+      - STORAGE_BACKEND=local
+      - USE_S3=False
     volumes:
       - sqlite_data:/home/appuser/app/data
 
@@ -28,3 +28,4 @@ services:
 
 volumes:
   sqlite_data:
+
